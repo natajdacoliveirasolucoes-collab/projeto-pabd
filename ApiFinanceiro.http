@@ -1,9 +1,44 @@
-@ApiFinanceiro_HostAddress = http://localhost:5003
+@EventHub_HostAddress = http://localhost:5003
+@Token = cole-o-token-jwt-aqui
 
-GET {{ApiFinanceiro_HostAddress}}/
+GET {{EventHub_HostAddress}}/
 Accept: application/json
 
 ###
 
-GET {{ApiFinanceiro_HostAddress}}/despesas
+POST {{EventHub_HostAddress}}/api/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Nata Jonas",
+  "email": "nata@example.com",
+  "senha": "123456",
+  "telefone": "69999999999"
+}
+
+###
+
+POST {{EventHub_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nata@example.com",
+  "senha": "123456"
+}
+
+###
+
+POST {{EventHub_HostAddress}}/api/organizadores
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "razaoSocial": "EventHub Producoes",
+  "cnpj": "00.000.000/0001-00",
+  "descricao": "Organizacao de eventos"
+}
+
+###
+
+GET {{EventHub_HostAddress}}/api/eventos
 Accept: application/json

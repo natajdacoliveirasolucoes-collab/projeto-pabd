@@ -10,7 +10,7 @@ namespace ApiFinanceiro.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            return Ok(new { api = "ApiFinanceiro", status = "up" });
+            return Ok(new { api = "EventHub", status = "up" });
         }
     }
 }

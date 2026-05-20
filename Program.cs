@@ -1,7 +1,10 @@
 using ApiFinanceiro.DataContexts;
 using ApiFinanceiro.Profiles;
 using ApiFinanceiro.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +31,31 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<DespesaService>();
+builder.Services.AddScoped<PasswordService>();
+builder.Services.AddScoped<TokenService>();
 builder.Services.AddAutoMapper(config => config.AddProfile<DespesaProfile>());
+
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "eventhub-dev-secret-key-change-me-32";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "EventHub";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "EventHub";
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -39,6 +66,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
